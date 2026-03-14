@@ -93,4 +93,6 @@ Run any project:
 streamlit run policy_chatbot.py
 ```
 
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/nihal-vernekar-a4b31916b/)
+
 ---
