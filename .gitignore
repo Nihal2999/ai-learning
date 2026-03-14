@@ -6,3 +6,7 @@ chroma_db/
 policy_chroma_db/
 *.db
 .streamlit/secrets.toml
+sales.csv
+test_doc.txt
+google_llm.py
+grok_llm.py

@@ -94,13 +94,3 @@ streamlit run policy_chatbot.py
 ```
 
 ---
-
-## 👤 About
-
-**Nihal** — Python Backend Developer at Capgemini, Bengaluru.
-Transitioning into AI/ML Engineering.
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/nihal-vernekar-a4b31916b/)
-```
-
----
