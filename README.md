@@ -14,6 +14,7 @@
 | 📊 Data Analyst Agent | [▶ Live](https://ai-learning-data-analyst.streamlit.app) | Upload CSV → ask questions → get charts |
 | 🗄️ SQL Query Explainer | [▶ Live](https://ai-learning-sql-explainer.streamlit.app) | Paste SQL → get issues + optimized rewrite |
 | 🧪 Prompt Eval Dashboard | [▶ Live](https://ai-learning-prompt-evaluation.streamlit.app) | A/B test prompts with automated scoring |
+| 📚 Knowledge Base Q&A | [▶ Live](https://YOUR-KB-URL.streamlit.app) | Upload PDFs → semantic search → cited answers |
 
 ---
 
@@ -58,6 +59,8 @@ Scientifically compare prompt versions against test cases with automated scoring
 ---
 
 ### 5. 📚 Knowledge Base Q&A — `knowledge_base.py`
+🌐 **[Live Demo](https://ai-learning-knowledge-base.streamlit.app/)**
+
 Upload PDFs or text files → ask questions → get answers with source citations.
 - Local embeddings via sentence-transformers (all-MiniLM-L6-v2)
 - ChromaDB vector database with similarity scores
