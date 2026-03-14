@@ -1,22 +1,24 @@
 import os
-import hashlib
 import streamlit as st
-from pathlib import Path
 import chromadb
 from chromadb.utils import embedding_functions
 from pypdf import PdfReader
 from groq import Groq
-from dotenv import load_dotenv
 
-load_dotenv()
+# ─── API Key — works locally (.env) and on Streamlit Cloud ───────
+try:
+    api_key = st.secrets["GROQ_API_KEY"]
+except:
+    from dotenv import load_dotenv
+    load_dotenv()
+    api_key = os.getenv("GROQ_API_KEY")
 
-groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+groq_client = Groq(api_key=api_key)
 
 # ─── Config ──────────────────────────────────────────────────────
-CHUNK_SIZE     = 500    # characters per chunk
-CHUNK_OVERLAP  = 100    # overlap between chunks
-TOP_K          = 4      # how many chunks to retrieve per query
-DB_PATH        = "./chroma_db"  # local vector DB storage
+CHUNK_SIZE    = 500   # characters per chunk
+CHUNK_OVERLAP = 100   # overlap between chunks
+TOP_K         = 4     # how many chunks to retrieve per query
 
 # ─── Embedding model (runs locally) ──────────────────────────────
 @st.cache_resource
@@ -25,18 +27,10 @@ def get_embedding_fn():
         model_name="all-MiniLM-L6-v2"
     )
 
-# ─── ChromaDB client ─────────────────────────────────────────────
-# @st.cache_resource
-# def get_chroma_collection():
-#     chroma_client = chromadb.PersistentClient(path=DB_PATH)
-#     return chroma_client.get_or_create_collection(
-#         name="knowledge_base",
-#         embedding_function=get_embedding_fn()
-#     )
-
+# ─── ChromaDB client (ephemeral — works on Streamlit Cloud) ──────
 @st.cache_resource
 def get_chroma_collection():
-    chroma_client = chromadb.EphemeralClient()  # in-memory, no disk
+    chroma_client = chromadb.EphemeralClient()
     return chroma_client.get_or_create_collection(
         name="knowledge_base",
         embedding_function=get_embedding_fn()
@@ -45,10 +39,7 @@ def get_chroma_collection():
 # ─── Text extraction ─────────────────────────────────────────────
 def extract_text_from_pdf(file) -> str:
     reader = PdfReader(file)
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text() + "\n"
-    return text
+    return "\n".join(page.extract_text() for page in reader.pages)
 
 def extract_text_from_txt(file) -> str:
     return file.read().decode("utf-8")
@@ -61,10 +52,8 @@ def chunk_text(text: str, source_name: str) -> list[dict]:
     chunk_index = 0
 
     while start < len(text):
-        end = start + CHUNK_SIZE
-        chunk = text[start:end].strip()
-
-        if chunk:  # skip empty chunks
+        chunk = text[start:start + CHUNK_SIZE].strip()
+        if chunk:
             chunks.append({
                 "text": chunk,
                 "id": f"{source_name}_chunk_{chunk_index}",
@@ -72,8 +61,7 @@ def chunk_text(text: str, source_name: str) -> list[dict]:
                 "chunk_index": chunk_index
             })
             chunk_index += 1
-
-        start += CHUNK_SIZE - CHUNK_OVERLAP  # overlap
+        start += CHUNK_SIZE - CHUNK_OVERLAP
 
     return chunks
 
@@ -81,27 +69,17 @@ def chunk_text(text: str, source_name: str) -> list[dict]:
 def ingest_document(file, collection) -> int:
     """Extract, chunk, embed and store a document."""
     name = file.name
-
-    # Extract text
-    if name.endswith(".pdf"):
-        text = extract_text_from_pdf(file)
-    else:
-        text = extract_text_from_txt(file)
+    text = extract_text_from_pdf(file) if name.endswith(".pdf") else extract_text_from_txt(file)
 
     if not text.strip():
         return 0
 
-    # Chunk it
     chunks = chunk_text(text, name)
-
-    # Store in ChromaDB
     collection.upsert(
         documents=[c["text"] for c in chunks],
         ids=[c["id"] for c in chunks],
-        metadatas=[{"source": c["source"],
-                    "chunk_index": c["chunk_index"]} for c in chunks]
+        metadatas=[{"source": c["source"], "chunk_index": c["chunk_index"]} for c in chunks]
     )
-
     return len(chunks)
 
 # ─── Retrieval ───────────────────────────────────────────────────
@@ -111,56 +89,46 @@ def retrieve(query: str, collection, top_k: int = TOP_K) -> list[dict]:
         query_texts=[query],
         n_results=min(top_k, collection.count())
     )
-
-    chunks = []
-    for i in range(len(results["documents"][0])):
-        chunks.append({
+    return [
+        {
             "text": results["documents"][0][i],
             "source": results["metadatas"][0][i]["source"],
             "chunk_index": results["metadatas"][0][i]["chunk_index"],
             "distance": results["distances"][0][i]
-        })
-
-    return chunks
+        }
+        for i in range(len(results["documents"][0]))
+    ]
 
 # ─── Generation ──────────────────────────────────────────────────
 def generate_answer(query: str, chunks: list[dict]) -> tuple[str, int]:
     """Generate an answer using retrieved chunks as context."""
-
-    # Build context block
-    context = ""
-    for i, chunk in enumerate(chunks):
-        context += f"\n[Source {i+1}: {chunk['source']}]\n{chunk['text']}\n"
-
-    system_prompt = """You are a helpful assistant that answers questions
-based ONLY on the provided context.
-
-Rules:
-- Only use information from the provided context
-- Always cite which source you used, e.g. (Source 1)
-- If the answer is not in the context, say "I couldn't find that in the provided documents"
-- Be concise and accurate"""
-
-    user_message = f"""Context:
-{context}
-
-Question: {query}
-
-Answer based only on the context above:"""
+    context = "\n".join(
+        f"\n[Source {i+1}: {c['source']}]\n{c['text']}"
+        for i, c in enumerate(chunks)
+    )
 
     response = groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         temperature=0.1,
         messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_message}
+            {
+                "role": "system",
+                "content": """You are a helpful assistant that answers questions
+based ONLY on the provided context.
+
+Rules:
+- Only use information from the provided context
+- Always cite which source you used e.g. (Source 1)
+- If the answer is not in the context say: I couldn't find that in the provided documents
+- Be concise and accurate"""
+            },
+            {
+                "role": "user",
+                "content": f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer based only on the context above:"
+            }
         ]
     )
-
-    return (
-        response.choices[0].message.content,
-        response.usage.total_tokens
-    )
+    return response.choices[0].message.content, response.usage.total_tokens
 
 # ─── Streamlit UI ────────────────────────────────────────────────
 st.set_page_config(
@@ -174,7 +142,7 @@ st.caption("Upload documents → ask questions → get answers with source citat
 
 collection = get_chroma_collection()
 
-# ── Sidebar — Upload & Stats ──
+# ── Sidebar ──
 with st.sidebar:
     st.subheader("📂 Upload Documents")
 
@@ -193,18 +161,14 @@ with st.sidebar:
 
     st.divider()
     st.subheader("📊 Knowledge Base Stats")
-    total = collection.count()
-    st.metric("Total chunks stored", total)
+    st.metric("Total chunks stored", collection.count())
 
-    if total > 0:
+    if collection.count() > 0:
         if st.button("🗑️ Clear Knowledge Base"):
-            # Delete and recreate collection
-            # chroma_client = chromadb.PersistentClient(path=DB_PATH)
-            # chroma_client.delete_collection("knowledge_base")
             st.cache_resource.clear()
             st.rerun()
 
-# ── Main — Q&A ──
+# ── Main ──
 if collection.count() == 0:
     st.info("👈 Upload some documents in the sidebar to get started.")
     st.markdown("""
@@ -216,6 +180,9 @@ if collection.count() == 0:
     - "What is the main argument of chapter 2?"
     - "Summarise the key points about X"
     - "What does the document say about Y?"
+
+    > **Note:** Documents are stored in memory for this session.
+    > Re-upload if you refresh the page.
     """)
 else:
     st.subheader("💬 Ask a Question")
@@ -225,11 +192,9 @@ else:
         placeholder="What does the document say about...?"
     )
 
-    col1, col2 = st.columns([1, 4])
-    top_k = col1.slider("Sources to retrieve", 1, 8, TOP_K)
+    top_k = st.slider("Sources to retrieve", 1, 8, TOP_K)
 
-    if st.button("🔍 Search & Answer", type="primary",
-                 disabled=not query.strip()):
+    if st.button("🔍 Search & Answer", type="primary", disabled=not query.strip()):
 
         with st.spinner("Searching knowledge base..."):
             chunks = retrieve(query, collection, top_k)
@@ -237,11 +202,9 @@ else:
         with st.spinner("Generating answer..."):
             answer, tokens = generate_answer(query, chunks)
 
-        # ── Answer ──
         st.subheader("✅ Answer")
         st.markdown(answer)
 
-        # ── Retrieved chunks ──
         st.divider()
         st.subheader(f"📎 Retrieved Sources ({len(chunks)} chunks)")
 
@@ -249,8 +212,7 @@ else:
             similarity = round((1 - chunk["distance"]) * 100, 1)
             with st.expander(
                 f"Source {i+1} — {chunk['source']} "
-                f"(chunk #{chunk['chunk_index']}, "
-                f"similarity: {similarity}%)"
+                f"(chunk #{chunk['chunk_index']}, similarity: {similarity}%)"
             ):
                 st.markdown(chunk["text"])
 
