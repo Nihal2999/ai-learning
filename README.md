@@ -1,8 +1,19 @@
 # 🤖 AI Engineering Portfolio
 
-> Built while learning AI engineering from scratch — 7 projects across
+> Built while learning AI engineering from scratch — 6 projects across
 > LLM APIs, Prompt Engineering, RAG, and AI Agents.
-> **Stack:** Python · FastAPI · LangChain · ChromaDB · Streamlit · Groq API
+> **Stack:** Python · ChromaDB · Sentence-Transformers · Streamlit · Groq API
+
+---
+
+## 🚀 Live Demos
+
+| Project | Demo | Description |
+|---|---|---|
+| 🏢 Company Policy Chatbot | [▶ Live](https://ai-learning-bot.streamlit.app) | Conversational RAG over uploaded docs |
+| 📊 Data Analyst Agent | [▶ Live](https://ai-learning-data-analyst.streamlit.app) | Upload CSV → ask questions → get charts |
+| 🗄️ SQL Query Explainer | [▶ Live](https://ai-learning-sql-explainer.streamlit.app) | Paste SQL → get issues + optimized rewrite |
+| 🧪 Prompt Eval Dashboard | [▶ Live](https://ai-learning-prompt-evaluation.streamlit.app) | A/B test prompts with automated scoring |
 
 ---
 
@@ -17,45 +28,48 @@ Multi-turn conversational chatbot with persistent memory and swappable personas.
 ---
 
 ### 2. 🗄️ SQL Query Explainer — `sql_explainer.py`
-Paste any SQL query and get a plain-English explanation, issues found,
-and an optimized rewrite.
+🌐 **[Live Demo](https://ai-learning-sql-explainer.streamlit.app)**
+
+Paste any SQL query and get a plain-English explanation, issues found, and an optimized rewrite.
 - Structured JSON output from LLM
-- Issues and suggestions panel
+- Catches SELECT *, missing indexes, N+1 risks
 - **Stack:** Python, Groq API, Streamlit
 
 ---
 
 ### 3. 📊 Data Analyst Agent — `data_analyst.py`
+🌐 **[Live Demo](https://ai-learning-data-analyst.streamlit.app)**
+
 Upload any CSV → ask questions in plain English → get answers + charts.
 - LLM generates and executes pandas code dynamically
-- Plotly chart rendering
-- Agent reasoning visible to user
+- Plotly chart rendering with agent reasoning visible
 - **Stack:** Python, Groq API, Pandas, Plotly, Streamlit
 
 ---
 
 ### 4. 🧪 Prompt Eval Dashboard — `prompt_eval.py`
+🌐 **[Live Demo](https://ai-learning-prompt-evaluation.streamlit.app)**
+
 Scientifically compare prompt versions against test cases with automated scoring.
 - 4 prompt variants tested against 10 test cases each
-- Accuracy, latency, and score leaderboard
-- Per-case pass/fail breakdown
+- Key finding: CoT + constraints (v3) = 100% accuracy. Minimal prompt (v4) = 0% and 18× slower
 - **Stack:** Python, Groq API, Streamlit
 
 ---
 
 ### 5. 📚 Knowledge Base Q&A — `knowledge_base.py`
 Upload PDFs or text files → ask questions → get answers with source citations.
-- Local embeddings via sentence-transformers
-- ChromaDB vector database (persistent)
-- Similarity scores per retrieved chunk
+- Local embeddings via sentence-transformers (all-MiniLM-L6-v2)
+- ChromaDB vector database with similarity scores
 - **Stack:** Python, ChromaDB, Sentence-Transformers, Groq API, Streamlit
 
 ---
 
 ### 6. 🏢 Company Policy Chatbot — `policy_chatbot.py`
+🌐 **[Live Demo](https://ai-learning-bot.streamlit.app)**
+
 Conversational RAG chatbot — full chat memory combined with document retrieval.
 - Multi-turn conversation with follow-up question understanding
-- Retrieval-Augmented Generation with source citations
 - Grounded answers — never hallucinates beyond provided docs
 - **Stack:** Python, ChromaDB, Sentence-Transformers, Groq API, Streamlit
 
@@ -75,6 +89,7 @@ Conversational RAG chatbot — full chat memory combined with document retrieval
 ---
 
 ## ⚙️ Setup
+
 ```bash
 git clone https://github.com/Nihal2999/ai-learning.git
 cd ai-learning
@@ -93,6 +108,12 @@ Run any project:
 streamlit run policy_chatbot.py
 ```
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/nihal-vernekar-a4b31916b/)
-
 ---
+
+## 👤 About
+
+**Nihal Vernekar** — Python Backend Developer, Bengaluru.
+Transitioning into AI/ML Engineering.
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://linkedin.com/in/nihal-vernekar)
+[![GitHub](https://img.shields.io/badge/GitHub-Nihal2999-black)](https://github.com/Nihal2999)

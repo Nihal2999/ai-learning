@@ -26,9 +26,17 @@ def get_embedding_fn():
     )
 
 # ─── ChromaDB client ─────────────────────────────────────────────
+# @st.cache_resource
+# def get_chroma_collection():
+#     chroma_client = chromadb.PersistentClient(path=DB_PATH)
+#     return chroma_client.get_or_create_collection(
+#         name="knowledge_base",
+#         embedding_function=get_embedding_fn()
+#     )
+
 @st.cache_resource
 def get_chroma_collection():
-    chroma_client = chromadb.PersistentClient(path=DB_PATH)
+    chroma_client = chromadb.EphemeralClient()  # in-memory, no disk
     return chroma_client.get_or_create_collection(
         name="knowledge_base",
         embedding_function=get_embedding_fn()
@@ -191,8 +199,8 @@ with st.sidebar:
     if total > 0:
         if st.button("🗑️ Clear Knowledge Base"):
             # Delete and recreate collection
-            chroma_client = chromadb.PersistentClient(path=DB_PATH)
-            chroma_client.delete_collection("knowledge_base")
+            # chroma_client = chromadb.PersistentClient(path=DB_PATH)
+            # chroma_client.delete_collection("knowledge_base")
             st.cache_resource.clear()
             st.rerun()
 
