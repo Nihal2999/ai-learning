@@ -5,6 +5,7 @@ from chromadb.utils import embedding_functions
 from pypdf import PdfReader
 from groq import Groq
 import streamlit as st
+
 try:
     api_key = st.secrets["GROQ_API_KEY"]
 except:
