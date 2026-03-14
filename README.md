@@ -1,7 +1,7 @@
 # 🤖 AI Engineering Portfolio
 
-> Built while learning AI engineering from scratch — 6 projects across
-> LLM APIs, Prompt Engineering, RAG, and AI Agents.
+> Built while learning AI engineering from scratch — 9 projects across
+> LLM APIs, Prompt Engineering, RAG, Agents, and full-stack AI systems.
 > **Stack:** Python · ChromaDB · Sentence-Transformers · Streamlit · Groq API
 
 ---
@@ -14,7 +14,10 @@
 | 📊 Data Analyst Agent | [▶ Live](https://ai-learning-data-analyst.streamlit.app) | Upload CSV → ask questions → get charts |
 | 🗄️ SQL Query Explainer | [▶ Live](https://ai-learning-sql-explainer.streamlit.app) | Paste SQL → get issues + optimized rewrite |
 | 🧪 Prompt Eval Dashboard | [▶ Live](https://ai-learning-prompt-evaluation.streamlit.app) | A/B test prompts with automated scoring |
-| 📚 Knowledge Base Q&A | [▶ Live](https://YOUR-KB-URL.streamlit.app) | Upload PDFs → semantic search → cited answers |
+| 📚 Knowledge Base Q&A | [▶ Live](https://ai-learning-knowledge-base.streamlit.app) | Upload PDFs → semantic search → cited answers |
+| 🔬 Research Agent | [▶ Live](https://ai-learning-research-agent.streamlit.app) | Topic → agent searches web → structured report |
+| 📧 Email Triage Agent | [▶ Live](https://ai-learning-email-triage.streamlit.app) | Classify emails → extract info → draft replies |
+| 🤖 AI Assistant (Capstone) | [▶ Live](https://ai-learning-assistant-capstone.streamlit.app) | RAG + web search + memory in one assistant |
 
 ---
 
@@ -78,6 +81,40 @@ Conversational RAG chatbot — full chat memory combined with document retrieval
 
 ---
 
+### 7. 🔬 AI Research Agent — `research_agent.py`
+🌐 **[Live Demo](https://ai-learning-research-agent.streamlit.app)**
+
+Give any research topic → autonomous agent searches the web across multiple queries, reads full pages, and synthesises a structured report with key findings, perspectives, and cited sources.
+- ReAct agent loop — autonomously decides which queries to run and which pages to read
+- Structured report with executive summary, key findings, and perspectives
+- Full agent reasoning log visible to user
+- **Stack:** Python, Groq API, Tavily Search, Streamlit
+
+---
+
+### 8. 📧 Email Triage Agent — `email_triage.py`
+🌐 **[Live Demo](https://ai-learning-email-triage.streamlit.app)**
+
+Paste any email → AI classifies category and urgency, extracts key asks and deadlines, drafts a professional reply, and flags emails that need escalation.
+- 8 categories: URGENT, BILLING, SUPPORT, SALES, HR, LEGAL, SPAM, INFO
+- Extracts deadlines, sentiment, and sender intent automatically
+- Triage dashboard showing processed email history and category breakdown
+- **Stack:** Python, Groq API, Streamlit
+
+---
+
+### 9. 🤖 AI Assistant — Capstone — `assistant.py`
+🌐 **[Live Demo](https://ai-learning-assistant-capstone.streamlit.app)**
+
+Unified AI assistant combining every skill from the portfolio into one product. Autonomously routes between RAG document search, live web search, and direct LLM answers based on query context.
+- Upload any PDF/TXT → ask questions grounded in your documents
+- Searches the web for current information when needed
+- Full conversation memory across all interactions
+- Cites every source — document name or live URL
+- **Stack:** Python, Groq API, ChromaDB, Sentence-Transformers, Tavily, Streamlit
+
+---
+
 ## 🛠️ Tech Stack
 
 | Category | Tools |
@@ -88,6 +125,7 @@ Conversational RAG chatbot — full chat memory combined with document retrieval
 | UI | Streamlit |
 | Data | Pandas, Plotly |
 | Infra | Python venv, python-dotenv |
+| Web Search | Tavily API |
 
 ---
 
