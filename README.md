@@ -2,7 +2,7 @@
 
 > Built while learning AI engineering from scratch — 9 projects across
 > LLM APIs, Prompt Engineering, RAG, Agents, and full-stack AI systems.
-> **Stack:** Python · ChromaDB · Sentence-Transformers · Streamlit · Groq API
+> **Stack:** Python · ChromaDB · Sentence-Transformers · Streamlit · Groq · Gemini · Tavily
 
 ---
 
@@ -111,7 +111,9 @@ Unified AI assistant combining every skill from the portfolio into one product. 
 - Searches the web for current information when needed
 - Full conversation memory across all interactions
 - Cites every source — document name or live URL
-- **Stack:** Python, Groq API, ChromaDB, Sentence-Transformers, Tavily, Streamlit
+- Multi-provider LLM fallback — Groq → Gemini → OpenRouter → HuggingFace — automatic failover on rate limits
+- Response caching — repeated queries served instantly with zero API calls
+- **Stack:** Python, Groq, Gemini, OpenRouter, HuggingFace, ChromaDB, Sentence-Transformers, Tavily, Streamlit
 
 ---
 
@@ -126,6 +128,7 @@ Unified AI assistant combining every skill from the portfolio into one product. 
 | Data | Pandas, Plotly |
 | Infra | Python venv, python-dotenv |
 | Web Search | Tavily API |
+| Multi-provider AI | Groq · Gemini · OpenRouter · HuggingFace |
 
 ---
 
